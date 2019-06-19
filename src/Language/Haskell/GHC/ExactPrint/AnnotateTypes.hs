@@ -8,9 +8,9 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-} -- Needed for the DataId constraint on ResTyGADTHook
 {-# LANGUAGE ViewPatterns      #-}
+
 
 -- | 'annotate' is a function which given a GHC AST fragment, constructs
 -- a syntax tree which indicates which annotations belong to each specific
@@ -50,7 +50,6 @@ import qualified Outputable     as GHC
 #endif
 
 import Control.Monad.Trans.Free
-import Control.Monad.Free.TH (makeFreeCon)
 import Control.Monad.Identity
 import Data.Data
 
@@ -160,37 +159,82 @@ type Annotated = FreeT AnnotationF Identity
 
 -- ---------------------------------------------------------------------
 
-makeFreeCon  'MarkEOF
-makeFreeCon  'MarkPrim
-makeFreeCon  'MarkPPOptional
-#if __GLASGOW_HASKELL__ >= 800
-makeFreeCon  'MarkInstead
-#endif
-makeFreeCon  'MarkOutside
-makeFreeCon  'MarkInside
-makeFreeCon  'MarkExternal
-makeFreeCon  'MarkMany
-makeFreeCon  'MarkManyOptional
-makeFreeCon  'MarkOffsetPrim
-makeFreeCon  'MarkOffsetPrimOptional
-makeFreeCon  'CountAnns
-makeFreeCon  'StoreOriginalSrcSpan
-makeFreeCon  'GetSrcSpanForKw
-#if __GLASGOW_HASKELL__ <= 710
-makeFreeCon  'StoreString
-#endif
-makeFreeCon  'AnnotationsToComments
-#if __GLASGOW_HASKELL__ <= 710
-makeFreeCon  'AnnotationsToCommentsBF
-makeFreeCon  'FinalizeBF
-#endif
-makeFreeCon  'WithSortKey
-makeFreeCon  'SetContextLevel
-makeFreeCon  'UnsetContext
-makeFreeCon  'IfInContext
-makeFreeCon  'WithSortKeyContexts
-makeFreeCon  'TellContext
-makeFreeCon  'MarkAnnBeforeAnn
+markEOF :: MonadFree AnnotationF m_avbj => m_avbj ()
+markEOF = liftF (MarkEOF ())
+markPrim :: MonadFree AnnotationF m_aw3V =>
+      GHC.AnnKeywordId -> Maybe String -> m_aw3V ()
+markPrim p_aw3X p_aw3Y = liftF (((MarkPrim p_aw3X) p_aw3Y) ())
+markPPOptional :: MonadFree AnnotationF m_aw53 =>
+      GHC.AnnKeywordId -> Maybe String -> m_aw53 ()
+markPPOptional p_aw55 p_aw56
+      = liftF (((MarkPPOptional p_aw55) p_aw56) ())
+markInstead :: MonadFree AnnotationF m_aw6b =>
+      GHC.AnnKeywordId -> KeywordId -> m_aw6b ()
+markInstead p_aw6d p_aw6e
+      = liftF (((MarkInstead p_aw6d) p_aw6e) ())
+markOutside :: MonadFree AnnotationF m_aw7j =>
+      GHC.AnnKeywordId -> KeywordId -> m_aw7j ()
+markOutside p_aw7l p_aw7m
+      = liftF (((MarkOutside p_aw7l) p_aw7m) ())
+markInside :: MonadFree AnnotationF m_aw8r => GHC.AnnKeywordId -> m_aw8r ()
+markInside p_aw8t = liftF ((MarkInside p_aw8t) ())
+markExternal :: MonadFree AnnotationF m_aw9w =>
+      GHC.SrcSpan -> GHC.AnnKeywordId -> String -> m_aw9w ()
+markExternal p_aw9y p_aw9z p_aw9A
+      = liftF ((((MarkExternal p_aw9y) p_aw9z) p_aw9A) ())
+markMany :: MonadFree AnnotationF m_awaH => GHC.AnnKeywordId -> m_awaH ()
+markMany p_awaJ = liftF ((MarkMany p_awaJ) ())
+markManyOptional :: MonadFree AnnotationF m_awbM => GHC.AnnKeywordId -> m_awbM ()
+markManyOptional p_awbO = liftF ((MarkManyOptional p_awbO) ())
+markOffsetPrim :: MonadFree AnnotationF m_awcR =>
+      GHC.AnnKeywordId -> Int -> Maybe String -> m_awcR ()
+markOffsetPrim p_awcT p_awcU p_awcV
+      = liftF ((((MarkOffsetPrim p_awcT) p_awcU) p_awcV) ())
+markOffsetPrimOptional :: MonadFree AnnotationF m_awe2 =>
+      GHC.AnnKeywordId -> Int -> Maybe String -> m_awe2 ()
+markOffsetPrimOptional p_awe4 p_awe5 p_awe6
+      = liftF ((((MarkOffsetPrimOptional p_awe4) p_awe5) p_awe6) ())
+countAnns :: MonadFree AnnotationF m_awfd => GHC.AnnKeywordId -> m_awfd Int
+countAnns p_awfg
+      = liftF ((CountAnns p_awfg) (\ x_awff -> (x_awff)))
+storeOriginalSrcSpan :: MonadFree AnnotationF m_awgj =>
+      GHC.SrcSpan -> AnnKey -> m_awgj AnnKey
+storeOriginalSrcSpan p_awgm p_awgn
+      = liftF
+          (((StoreOriginalSrcSpan p_awgm) p_awgn) (\ x_awgl -> (x_awgl)))
+getSrcSpanForKw :: MonadFree AnnotationF m_awhs =>
+      GHC.SrcSpan -> GHC.AnnKeywordId -> m_awhs GHC.SrcSpan
+getSrcSpanForKw p_awhv p_awhw
+      = liftF (((GetSrcSpanForKw p_awhv) p_awhw) (\ x_awhu -> (x_awhu)))
+annotationsToComments :: MonadFree AnnotationF m_awiB => [GHC.AnnKeywordId] -> m_awiB ()
+annotationsToComments p_awiD
+      = liftF ((AnnotationsToComments p_awiD) ())
+withSortKey :: MonadFree AnnotationF m_awjG =>
+      [(GHC.SrcSpan, Annotated ())] -> m_awjG ()
+withSortKey p_awjI = liftF ((WithSortKey p_awjI) ())
+setContextLevel :: MonadFree AnnotationF m_awkL =>
+      Set.Set AstContext -> Int -> Annotated () -> m_awkL ()
+setContextLevel p_awkN p_awkO p_awkP
+      = liftF ((((SetContextLevel p_awkN) p_awkO) p_awkP) ())
+unsetContext :: MonadFree AnnotationF m_awlW =>
+      AstContext -> Annotated () -> m_awlW ()
+unsetContext p_awlY p_awlZ
+      = liftF (((UnsetContext p_awlY) p_awlZ) ())
+ifInContext :: MonadFree AnnotationF m_awn4 =>
+      Set.Set AstContext -> Annotated () -> Annotated () -> m_awn4 ()
+ifInContext p_awn6 p_awn7 p_awn8
+      = liftF ((((IfInContext p_awn6) p_awn7) p_awn8) ())
+withSortKeyContexts :: MonadFree AnnotationF m_awof =>
+      ListContexts -> [(GHC.SrcSpan, Annotated ())] -> m_awof ()
+withSortKeyContexts p_awoh p_awoi
+      = liftF (((WithSortKeyContexts p_awoh) p_awoi) ())
+tellContext :: MonadFree AnnotationF m_awpn => Set.Set AstContext -> m_awpn ()
+tellContext p_awpp = liftF ((TellContext p_awpp) ())
+markAnnBeforeAnn :: MonadFree AnnotationF m_awqs =>
+      GHC.AnnKeywordId -> GHC.AnnKeywordId -> m_awqs ()
+markAnnBeforeAnn p_awqu p_awqv
+      = liftF (((MarkAnnBeforeAnn p_awqu) p_awqv) ())
+
 
 -- ---------------------------------------------------------------------
 

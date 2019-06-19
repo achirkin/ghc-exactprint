@@ -8,7 +8,6 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-} -- Needed for the DataId constraint on ResTyGADTHook
 -- | 'annotate' is a function which given a GHC AST fragment, constructs
 -- a syntax tree which indicates which annotations belong to each specific
