@@ -75,6 +75,11 @@ import qualified GHC.LanguageExtensions as LangExt
 #endif
 
 import qualified Data.Map as Map
+import qualified Data.Char as Char
+import qualified Data.List as List
+
+import System.Exit    (ExitCode(..))
+import System.Process (readProcessWithExitCode)
 
 {-# ANN module "HLint: ignore Eta reduce" #-}
 {-# ANN module "HLint: ignore Redundant do" #-}
@@ -248,9 +253,14 @@ parseModuleApiAnnsWithCpp cppOptions file = ghcWrapper $ do
 
 -- | Internal function. Default runner of GHC.Ghc action in IO.
 ghcWrapper :: GHC.Ghc a -> IO a
-ghcWrapper =
+ghcWrapper m = do
+  (ecode, out, _err) <- readProcessWithExitCode "ghc" ["--print-libdir"] []
+  let outClear = List.dropWhileEnd Char.isSpace $ List.dropWhile Char.isSpace out
+      libPath = case (ecode, null outClear) of
+        (ExitSuccess, False) -> Just outClear
+        _ -> Just libdir
   GHC.defaultErrorHandler GHC.defaultFatalMessager GHC.defaultFlushOut
-    . GHC.runGhc (Just libdir)
+    $ GHC.runGhc libPath m
 
 -- | Internal function. Exposed if you want to muck with DynFlags
 -- before parsing.
